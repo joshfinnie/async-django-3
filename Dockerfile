@@ -1,11 +1,17 @@
-FROM python:3.8-slim
-WORKDIR /code
-
-# Update to latest packages and add build-essential and python-dev
+FROM python:3.8.1-slim-buster as base
+RUN useradd --create-home app
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
-            build-essential=12.6 \
-            python3-dev=3.7.3-1 && \
-    rm -fr /var/lib/apt/lists/*
+            build-essential
 
-RUN pip install Django==3.0 uvicorn==0.10.8
+FROM base as builder
+WORKDIR /tmp
+COPY requirements.txt /requirements.txt
+RUN pip install --prefix="/tmp" -r /requirements.txt
+
+FROM base
+COPY --from=builder /tmp /usr/local
+USER app
+WORKDIR /home/app
+
+COPY --chown=app:app /src /home/app
