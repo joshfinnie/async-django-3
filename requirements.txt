@@ -1,2 +1,2 @@
-django==3.0.7
+django==3.0.14
 uvicorn==0.11.7
